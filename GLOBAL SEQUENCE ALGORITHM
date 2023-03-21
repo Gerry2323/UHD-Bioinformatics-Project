@@ -1,0 +1,84 @@
+#__________________________BioInformatics________________________________________-#
+#__________________________Needleman-Wunsch_______________________________#
+
+#numpy a fundemental packet fir array computing in python#
+import numpy as np
+
+
+#Ask for sequences from the user
+#sequence_1 = input("Enter or paste sequence 1:")
+#sequence_2 = input("Enter or paste sequence 2:")
+
+#this is where u will atually put each sequence#
+sequence_1 = "ATCGGAG"
+sequence_2 = "ATGCAA"
+
+#Create Matrices
+main_matrix = np.zeros((len(sequence_1)+1,len(sequence_2)+1))
+macth_checker_matrix = np.zeros((len(sequence_1),len(sequence_2)))
+
+
+# Providing the scores for the macth , mismacth and gap
+match_reward = 1
+mismatch_penalty = -1
+gap_penalty = -2
+
+
+#Fill the macth checker matrix according to macth or mismacth
+for i in range(len(sequence_1)):
+    for j in range(len(sequence_2)):
+        if sequence_1[i] == sequence_2[j]:
+            macth_checker_matrix[i][j]= match_reward
+        else:
+            macth_checker_matrix[i][j]= mismatch_penalty
+
+print(macth_checker_matrix)
+
+#Filling up the matrix using Neddleman_Wunsch algorithm
+#STEP 1 : Initialisation
+for i in range(len(sequence_1)+1):
+    main_matrix[i][0] = i*gap_penalty
+for j in range(len(sequence_2)+1):
+    main_matrix[0][j] = j * gap_penalty
+
+#STEP 2 : Matrix Filling
+for i in range(1,len(sequence_1)+1):
+    for j in range(1,len(sequence_2)+1):
+        main_matrix[i][j] = max(main_matrix[i-1][j-1]+macth_checker_matrix[i-1][j-1],
+                                main_matrix[i-1][j]+gap_penalty,
+                                main_matrix[i][j-1]+ gap_penalty)
+
+print(main_matrix)
+
+# step 3 : TRACEBACK
+
+aligned_1 = ""
+aligned_2 = ""
+
+ti = len(sequence_1)
+tj = len(sequence_2)
+
+while(ti >0 and tj > 0):
+
+    if (ti >0 and tj > 0 and main_matrix[ti][tj]  ==  main_matrix[ti-1][tj-1]+ macth_checker_matrix[ti-1][tj-1]):
+
+        aligned_1 = sequence_1[ti-1] + aligned_1
+        aligned_2 = sequence_2[tj-1] + aligned_2
+
+        ti = ti - 1
+        tj = tj - 1
+
+    elif(tj > 0 and main_matrix[ti][tj] == main_matrix[ti-1][tj-1] + gap_penalty):
+        aligned_1 = sequence_1[ti-1] + aligned_1
+        aligned_2 = "-" + aligned_2
+
+        ti = ti -1
+    else:
+        aligned_1 = sequence_1[tj-1] + aligned_1
+        aligned_2 = "-" + aligned_2
+        ti = ti - 1
+
+# test
+print(aligned_1)
+print(aligned_2)
+
